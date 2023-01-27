@@ -1,21 +1,27 @@
 const EC = require("elliptic").ec;
 const secp = require("@noble/secp256k1");
+const bs58check = require("bs58check");
+const assert = require("assert");
 
-  const seedHex =
-    "caf797541983d115976714b8fb33720439e0790a6186106016d427c128b4e7e35e7f9dd8e2b0b8ccd08a50de574f9b6233e52fcec32a5bcd8e005e38f5dcd572";
+const seedHex =
+  "caf797541983d115976714b8fb33720439e0790a6186106016d427c128b4e7e3";
+const desoMainNetPrefix = [0xcd, 0x14, 0x0];
 
-  // elliptic key pair
-  const ec = new EC("secp256k1");
-  const ecKeys = ec.keyFromPrivate(seedHex);
-  const publicKey = ecKeys.getPublic("hex");
+// elliptic key pair
+const ec = new EC("secp256k1");
+const ecKeys = ec.keyFromPrivate(seedHex);
+const ecPubKeyCompressed = ecKeys.getPublic().encode('array', true);
+const ecDesoPubKey = new Uint8Array([...desoMainNetPrefix, ...ecPubKeyCompressed]);
+const ecBs58CheckPubKey = bs58check.encode(ecDesoPubKey);
 
-  // secp256k1 key pair
-  const secpPrivKey = secp.utils.mod(BigInt(`0x${seedHex}`), secp.CURVE.n);
-  const pubkkey = secp.getPublicKey(secpPrivKey);
 
-  console.log("elliptic priv key hex: ", ecKeys.getPrivate("hex"));
-  console.log("secp256k priv key hex: ", secpPrivKey.toString(16));
+// secp256k1 key pair
+const noblePubKeyCompressed = secp.getPublicKey(seedHex, true);
+const nobleDesoPubKey = new Uint8Array([...desoMainNetPrefix, ...noblePubKeyCompressed]);
+const nobleBs58CheckPubKey = bs58check.encode(nobleDesoPubKey);
 
-  console.log("ellpitic pub key hex : ", publicKey);
-  console.log("secp256k pub key hex : ", secp.utils.bytesToHex(pubkkey));
+assert(ecBs58CheckPubKey === nobleBs58CheckPubKey, "Public keys do not match");
 
+console.log("the base58 encoded public keys match 🎉");
+console.log("elliptic pub key bs58: ", ecBs58CheckPubKey);
+console.log("secp256k pub key bs58: ", nobleBs58CheckPubKey);
