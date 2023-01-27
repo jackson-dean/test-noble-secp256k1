@@ -11,9 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "@noble/secp256k1": "^1.7.1",
-    "bip39": "^3.0.4",
-    "bs58check": "^2.1.2",
-    "elliptic": "^6.5.4",
-    "hdkey": "github:deso-protocol/hdkey"
+    "elliptic": "^6.5.4"
   }
 }
